@@ -1,9 +1,0 @@
-# Temporary files
-*.pyc
-*~
-
-# Local scripts
-activate
-
-# Output directories
-runs/
