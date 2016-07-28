@@ -1,7 +1,7 @@
 import requests
 from google.protobuf.internal.decoder import _DecodeVarint
 
-from stanza.nlp import CoreNLP_pb2
+import CoreNLP_pb2
 from stanza.nlp.data import Document, Sentence, Token
 
 __author__ = 'kelvinguu, vzhong, wmonroe4'
@@ -23,7 +23,7 @@ class CoreNLPClient(object):
 
   def _request(self, text, properties):
     try:
-      r = requests.post(self.server, params={'properties': str(properties)}, data=text.encode('utf-8'))
+      r = requests.post(self.server, params={'properties': str(properties)}, data=text)
       r.raise_for_status()
       return r
     except requests.HTTPError:
