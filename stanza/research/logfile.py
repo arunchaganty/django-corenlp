@@ -1,7 +1,6 @@
 import sys
 
-
-class Tee(object):
+class tee(object):
     '''
     A file-like object that duplicates output to two other file-like
     objects.
@@ -15,9 +14,9 @@ class Tee(object):
         self.fd2 = _fd2
 
     def __del__(self):
-        if sys is not None and self.fd1 != sys.stdout and self.fd1 != sys.stderr:
+        if self.fd1 != sys.stdout and self.fd1 != sys.stderr:
             self.fd1.close()
-        if sys is not None and self.fd2 != sys.stdout and self.fd2 != sys.stderr:
+        if self.fd2 != sys.stdout and self.fd2 != sys.stderr:
             self.fd2.close()
 
     def write(self, text):
@@ -29,18 +28,13 @@ class Tee(object):
         self.fd2.flush()
 
 
-tees = []
-
-
 def log_stdout_to(logfilename):
     stdoutsav = sys.stdout
     outputlog = open(logfilename, "w")
-    sys.stdout = Tee(stdoutsav, outputlog)
-    tees.append(sys.stdout)
+    sys.stdout = tee(stdoutsav, outputlog)
 
 
 def log_stderr_to(logfilename):
     stderrsav = sys.stderr
     outputlog = open(logfilename, "w")
-    sys.stderr = Tee(stderrsav, outputlog)
-    tees.append(sys.stderr)
+    sys.stderr = tee(stderrsav, outputlog)
