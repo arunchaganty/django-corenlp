@@ -18,7 +18,6 @@ class UnitTest(Command):
                                  '--ignore=stanza/research/pick_gpu.py',
                                  '--ignore=stanza/research/progress.py',
                                  '--ignore=stanza/research/summary.py',
-                                 '--ignore=stanza/research/templates/third-party',
                                  'stanza', 'test/unit_tests'])
         raise SystemExit(errno)
 
