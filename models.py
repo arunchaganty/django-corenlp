@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from . import settings
 
+
+# TODO(chaganty): include a from_to stanza/dict methods.
+
 class Document(models.Model):
     """
     Represents metadata about a document.
