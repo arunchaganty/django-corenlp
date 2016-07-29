@@ -19,6 +19,7 @@ class Document(models.Model):
     date = models.DateField(null=True, help_text="Date of the document")
     title = models.TextField(help_text="Title for the document")
     gloss = models.TextField(help_text="The entire document")
+    metadata = models.TextField(help_text="Miscellaneous metadata in json")
 
     def __str__(self):
         return self.gloss
