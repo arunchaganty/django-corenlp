@@ -10,6 +10,10 @@ CORENLP_CLIENT = CoreNLPClient(settings.ANNOTATOR_ENDPOINT)
 def annotate_document(doc_gloss):
     """
     Annotate a document using the CoreNLPClient
+    :param doc_gloss Gloss of the document to parse.
+    :returns A list of Sentences and Mentions
     """
-    return CORENLP_CLIENT.annotate(doc_gloss, settings.DEFAULT_ANNOTATORS)
+    document = CORENLP_CLIENT.annotate(doc_gloss, settings.DEFAULT_ANNOTATORS)
+
+    return [], []
 

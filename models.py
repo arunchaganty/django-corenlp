@@ -10,7 +10,7 @@ class Document(models.Model):
     Represents metadata about a document.
     """
     class Meta:
-        if settings.USE_TABLENAME_PREFIX:
+        if not settings.USE_TABLENAME_PREFIX:
             db_table = "document"
         managed = settings.MANAGE_TABLES
     id = models.CharField(max_length=256, primary_key=True)
@@ -33,7 +33,7 @@ class Sentence(models.Model):
     annotations.
     """
     class Meta:
-        if settings.USE_TABLENAME_PREFIX:
+        if not settings.USE_TABLENAME_PREFIX:
             db_table = "document"
         managed = settings.MANAGE_TABLES
 
@@ -66,7 +66,7 @@ class Entity(models.Model):
     "Wiki_Format".
     """
     class Meta:
-        if settings.USE_TABLENAME_PREFIX:
+        if not settings.USE_TABLENAME_PREFIX:
             db_table = "entity"
         managed = settings.MANAGE_TABLES
 
@@ -84,7 +84,7 @@ class Mention(models.Model):
     Represents occurrences of entity mentions in the document.
     """
     class Meta:
-        if settings.USE_TABLENAME_PREFIX:
+        if not settings.USE_TABLENAME_PREFIX:
             db_table = "mention"
         managed = settings.MANAGE_TABLES
 
@@ -127,7 +127,7 @@ class Relation(models.Model):
         'president' is the slot value
     """
     class Meta:
-        if settings.USE_TABLENAME_PREFIX:
+        if not settings.USE_TABLENAME_PREFIX:
             db_table = "kbp_slot_fill"
         managed = settings.MANAGE_TABLES
 

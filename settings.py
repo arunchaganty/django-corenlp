@@ -13,10 +13,10 @@ USE_TABLENAME_PREFIX = True
 # For now, we assume that you are hosting your own annotation server on
 # your machine, but you might prefer using http://corenlp.ai as a hosted
 # service.
-ANNOTATOR_ENDPOINT = "localhost:8001"
+ANNOTATOR_ENDPOINT = "http://localhost:9000"
 API_USER = ""
 API_KEY = ""
 
 # TODO: include "mentions" when the server supports them.
-DEFAULT_ANNOTATORS = ["tokenize", "ssplit", "lemma", "pos", "ner", "dep"]
+DEFAULT_ANNOTATORS = ["tokenize", "ssplit", "lemma", "pos", "ner", "depparse"]
 
