@@ -17,6 +17,6 @@ You can get started by running the following commands (happily stolen from the [
     # Put a symlink to the actual module somewhere where your code needs it
     ln -s third-party/corenlp corenlp
     # Add aliases for the two things you'll need to do with the subtree
-    git alias corenlp-update subtree pull --prefix third-party/corenlp corenlp master --squash
-    git alias corenlp-push subtree push --prefix third-party/corenlp corenlp master
+    git config --local alias.corenlp-update "subtree pull --prefix third-party/corenlp corenlp master --squash"
+    git config --local alias.corenlp-push "subtree push --prefix third-party/corenlp corenlp master"
 
