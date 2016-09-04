@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from . import settings
 
-
 # TODO(chaganty): include a from_to stanza/dict methods.
 
 class Document(models.Model):
@@ -15,6 +14,8 @@ class Document(models.Model):
         managed = settings.MANAGE_TABLES
     id = models.CharField(max_length=256, primary_key=True)
     corpus_id = models.TextField(help_text="Namespace of the document collection.")
+    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+
     source = models.TextField(help_text="Tracks the document source.")
     date = models.DateField(null=True, help_text="Date of the document")
     title = models.TextField(help_text="Title for the document")
@@ -37,9 +38,9 @@ class Sentence(models.Model):
             db_table = "document"
         managed = settings.MANAGE_TABLES
 
-    id = models.BigIntegerField(primary_key=True)
-    # The corpus id is replicated here for the purpose of efficiency.
-    corpus_id = models.TextField(help_text="Namespace of the document collection.")
+    id = models.AutoField(primary_key=True)
+    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+
     doc = models.ForeignKey(Document, help_text="Source document")
     sentence_index = models.IntegerField(help_text="Index of sentence in document (useful to order sentences)")
     words = ArrayField(models.TextField(), help_text="Array of tokens")   # Tokens
@@ -59,6 +60,27 @@ class Sentence(models.Model):
     def __repr__(self):
         return "[Sentence {}]".format(self.gloss[:50])
 
+    @classmethod
+    def from_stanza(cls, doc, sentence_index, s):
+        """
+        Convert a sentence from stanza.nlp.corenlp.AnnotatedSentence
+        to this model.
+        :param doc - Document model object containing sentence
+        :param s -  stanza.nlp.corenlp.AnnotatedSentence
+        """
+        return Sentence(
+            doc = doc,
+            sentence_index = sentence_index,
+            words = s.words,
+            lemmas = s.lemmas,
+            pos_tags = s.pos_tags,
+            ner_tags = s.ner_tags,
+            doc_char_begin = [t.character_span[0] for t in s],
+            doc_char_end = [t.character_span[1] for t in s],
+            dependencies = None, #TODO(chaganty): stanza's object doesn't have a representation.
+            gloss = s.text)
+
+
 class Entity(models.Model):
     """
     An entity is the target of entity linking.
@@ -71,6 +93,8 @@ class Entity(models.Model):
         managed = settings.MANAGE_TABLES
 
     id = models.TextField(primary_key=True, help_text="The entity id is simply the canonical textual representation of the entity")
+    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+
     ner = models.CharField(max_length=64, help_text="Type of entity, usually an NER tag")
 
     def __str__(self):
@@ -88,23 +112,23 @@ class Mention(models.Model):
             db_table = "mention"
         managed = settings.MANAGE_TABLES
 
-    id = models.BigIntegerField(primary_key = True)
-    # The corpus id is replicated here for the purpose of efficiency.
-    corpus_id = models.TextField(help_text="Namespace of the document collection.")
+    id = models.AutoField(primary_key=True)
+    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+
     doc = models.ForeignKey(Document, help_text="Source document")
     sentence = models.ForeignKey(Sentence, help_text="Sentence containing the mention")
 
     # provenance information
-    token_begin = ArrayField(models.IntegerField(), help_text="Token offset within sentence where this entity mention starts")
-    token_end = ArrayField(models.IntegerField(), help_text="Token offset within sentence where this entity mention ends")
-    doc_char_begin = ArrayField(models.IntegerField(), help_text="Character offset within the document where this entity mention starts")
-    doc_char_end = ArrayField(models.IntegerField(), help_text="Character offset within the document where this entity mention ends")
-    doc_canonical_char_begin = ArrayField(models.IntegerField(), help_text="Character offset within the document where this entity's canonical mention (resolved through coref) starts")
-    doc_canonical_char_end = ArrayField(models.IntegerField(), help_text="Character offset within the document where this entity's canonical mention (resolved through coref) ends")
+    token_begin = models.IntegerField(help_text="Token offset within sentence where this entity mention starts")
+    token_end = models.IntegerField(help_text="Token offset within sentence where this entity mention ends")
+    doc_char_begin = models.IntegerField(help_text="Character offset within the document where this entity mention starts")
+    doc_char_end = models.IntegerField(help_text="Character offset within the document where this entity mention ends")
+    doc_canonical_char_begin = models.IntegerField(help_text="Character offset within the document where this entity's canonical mention (resolved through coref) starts")
+    doc_canonical_char_end = models.IntegerField(help_text="Character offset within the document where this entity's canonical mention (resolved through coref) ends")
 
     # linking information
     ner = models.CharField(max_length=64, help_text="Type of entity, usually an NER tag")
-    best_entity = models.ForeignKey(Entity, related_name="mentions", db_column="best_entity", help_text="The best entity link for this mention")
+    best_entity = models.ForeignKey(Entity, null=True, related_name="mentions", db_column="best_entity", help_text="The best entity link for this mention")
     best_entity_score = models.FloatField(null=True, help_text="Linking score for the best entity match")
     unambiguous_link = models.BooleanField(help_text="Was the linking unambigiuous?")
     alt_entity = models.ForeignKey(Entity, null=True, related_name="mentions_alt", db_column="alt_entity", help_text="The 2nd best entity link for this mention")
@@ -117,6 +141,32 @@ class Mention(models.Model):
 
     def __repr__(self):
         return "[Mention {}]".format(self.gloss[:50])
+
+    @classmethod
+    def from_stanza(cls, doc, sentence, m):
+        """
+        Convert a sentence from stanza.nlp.corenlp.AnnotatedEntity
+        to this model.
+        :param doc - Document model object containing sentence
+        :param sentence - Sentence model object containing mention
+        :param m -  stanza.nlp.corenlp.AnnotatedEntity
+        """
+        return Mention(
+            doc = doc,
+            sentence = sentence,
+            token_begin = m.token_span[0],
+            token_end = m.token_span[1],
+            doc_char_begin = m.character_span[0],
+            doc_char_end = m.character_span[1],
+            doc_canonical_char_begin = m.canonical_entity.character_span[0],
+            doc_canonical_char_end = m.canonical_entity.character_span[1],
+            ner = m.type,
+            best_entity = None,
+            best_entity_score = 0.,
+            unambiguous_link = False,
+            alt_entity = None,
+            alt_entity_score = 0.,
+            gloss = m.gloss)
 
 class Relation(models.Model):
     """
@@ -131,9 +181,9 @@ class Relation(models.Model):
             db_table = "kbp_slot_fill"
         managed = settings.MANAGE_TABLES
 
-    id = models.BigIntegerField(primary_key = True)
+    id = models.AutoField(primary_key=True)
+    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
     # Provenance
-    corpus_id = models.TextField(help_text="Namespace of the document collection.")
     sentence = models.ForeignKey(Sentence, help_text="Sentence containing the mention")
 
     # Entity
