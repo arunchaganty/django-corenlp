@@ -13,15 +13,9 @@ class DocumentAdmin(admin.ModelAdmin):
         call the annotator to annotate the doument.
         """
         if not change:
-            sentences, mentions = annotate_document(obj.gloss)
             with transaction.atomic():
                 obj.save()
-                # TODO(chaganty): batch these saves.
-                for sentence in sentences:
-                    sentence.doc = obj
-                    sentence.save()
-                for mention in mentions:
-                    mention.save()
+                annotate_document(obj.gloss)
         else:
             raise NotImplementedError("Can't update a document")
 
