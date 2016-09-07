@@ -16,9 +16,8 @@ class Document(models.Model):
     id = models.CharField(max_length=256, primary_key=True)
     corpus_id = models.TextField(help_text="Namespace of the document collection.")
     created = models.DateTimeField(default=now(), help_text="Keeps track of when this sentence was added")
-
-    title = models.TextField(help_text="Title for the document")
     date = models.DateField(null=True, help_text="Date of the document")
+    title = models.TextField(help_text="Title for the document")
     gloss = models.TextField(help_text="The entire document")
     metadata = models.TextField(help_text="Miscellaneous metadata in json")
 
