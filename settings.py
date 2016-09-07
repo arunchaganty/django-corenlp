@@ -18,5 +18,5 @@ API_USER = ""
 API_KEY = ""
 
 # TODO: include "mentions" when the server supports them.
-DEFAULT_ANNOTATORS = ["tokenize", "ssplit", "lemma", "pos", "ner", "depparse"]
+DEFAULT_ANNOTATORS = ["tokenize", "ssplit", "lemma", "pos", "ner", "depparse", "coref"]
 

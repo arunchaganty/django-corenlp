@@ -134,6 +134,7 @@ class Mention(models.Model):
     alt_entity_score = models.FloatField(null=True, help_text="Linking score for the 2nd best entity match")
 
     gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
+    canonical_gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
 
     def __str__(self):
         return self.gloss
@@ -165,7 +166,8 @@ class Mention(models.Model):
             unambiguous_link = False,
             alt_entity = None,
             alt_entity_score = 0.,
-            gloss = m.gloss)
+            gloss = m.gloss,
+            canonical_gloss = m.canonical_entity.gloss)
 
 class Relation(models.Model):
     """
