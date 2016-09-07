@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.utils.timezone import now
 from . import settings
 
 # TODO(chaganty): include a from_to stanza/dict methods.
@@ -14,11 +15,10 @@ class Document(models.Model):
         managed = settings.MANAGE_TABLES
     id = models.CharField(max_length=256, primary_key=True)
     corpus_id = models.TextField(help_text="Namespace of the document collection.")
-    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+    created = models.DateTimeField(default=now(), help_text="Keeps track of when this sentence was added")
 
-    source = models.TextField(help_text="Tracks the document source.")
-    date = models.DateField(null=True, help_text="Date of the document")
     title = models.TextField(help_text="Title for the document")
+    date = models.DateField(null=True, help_text="Date of the document")
     gloss = models.TextField(help_text="The entire document")
     metadata = models.TextField(help_text="Miscellaneous metadata in json")
 
@@ -39,7 +39,7 @@ class Sentence(models.Model):
         managed = settings.MANAGE_TABLES
 
     id = models.AutoField(primary_key=True)
-    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+    created = models.DateTimeField(default=now(),  help_text="Keeps track of when this sentence was added")
 
     doc = models.ForeignKey(Document, help_text="Source document")
     sentence_index = models.IntegerField(help_text="Index of sentence in document (useful to order sentences)")
@@ -93,7 +93,7 @@ class Entity(models.Model):
         managed = settings.MANAGE_TABLES
 
     id = models.TextField(primary_key=True, help_text="The entity id is simply the canonical textual representation of the entity")
-    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+    created = models.DateTimeField(default=now(),  help_text="Keeps track of when this sentence was added")
 
     ner = models.CharField(max_length=64, help_text="Type of entity, usually an NER tag")
 
@@ -113,7 +113,7 @@ class Mention(models.Model):
         managed = settings.MANAGE_TABLES
 
     id = models.AutoField(primary_key=True)
-    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+    created = models.DateTimeField(default=now(),  help_text="Keeps track of when this sentence was added")
 
     doc = models.ForeignKey(Document, help_text="Source document")
     sentence = models.ForeignKey(Sentence, help_text="Sentence containing the mention")
@@ -182,7 +182,7 @@ class Relation(models.Model):
         managed = settings.MANAGE_TABLES
 
     id = models.AutoField(primary_key=True)
-    created = models.DateTimeField(auto_now_add=True, help_text="Keeps track of when this sentence was added")
+    created = models.DateTimeField(default=now(), help_text="Keeps track of when this sentence was added")
     # Provenance
     sentence = models.ForeignKey(Sentence, help_text="Sentence containing the mention")
 
