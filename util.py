@@ -19,7 +19,9 @@ def annotate_document(doc):
     with transaction.atomic():
         # Create django objects
         sentences = [Sentence.from_stanza(doc, i, s) for i, s in enumerate(document)]
-        Sentence.objects.bulk_create(sentences)
+        sentences = Sentence.objects.bulk_create(sentences)
+        # Note: setting ids is only supported with django 1.10
+        assert sentences[0].id is not None, "Ids have not been created."
         mentions = [Mention.from_stanza(doc, sentences[m.sentence.sentenceIndex], m) for m in document.mentions]
         Mention.objects.bulk_create(mentions)
 
