@@ -10,7 +10,7 @@ from django.utils.timezone import utc
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('corenlp', '0005_auto_20160905_0538'),
+        ('corenlp', '0003_remove_document_source'),
     ]
 
     operations = [
@@ -18,30 +18,5 @@ class Migration(migrations.Migration):
             model_name='mention',
             name='canonical_gloss',
             field=models.TextField(help_text='Raw text representation of the mention', null=True),
-        ),
-        migrations.AlterField(
-            model_name='document',
-            name='created',
-            field=models.DateTimeField(default=datetime.datetime(2016, 9, 7, 5, 27, 15, 636195, tzinfo=utc), help_text='Keeps track of when this sentence was added'),
-        ),
-        migrations.AlterField(
-            model_name='entity',
-            name='created',
-            field=models.DateTimeField(default=datetime.datetime(2016, 9, 7, 5, 27, 15, 638114, tzinfo=utc), help_text='Keeps track of when this sentence was added'),
-        ),
-        migrations.AlterField(
-            model_name='mention',
-            name='created',
-            field=models.DateTimeField(default=datetime.datetime(2016, 9, 7, 5, 27, 15, 638666, tzinfo=utc), help_text='Keeps track of when this sentence was added'),
-        ),
-        migrations.AlterField(
-            model_name='relation',
-            name='created',
-            field=models.DateTimeField(default=datetime.datetime(2016, 9, 7, 5, 27, 15, 639941, tzinfo=utc), help_text='Keeps track of when this sentence was added'),
-        ),
-        migrations.AlterField(
-            model_name='sentence',
-            name='created',
-            field=models.DateTimeField(default=datetime.datetime(2016, 9, 7, 5, 27, 15, 637249, tzinfo=utc), help_text='Keeps track of when this sentence was added'),
         ),
     ]
