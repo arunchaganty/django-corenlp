@@ -136,6 +136,9 @@ class Mention(models.Model):
     gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
     canonical_gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
 
+    canonical_mention = models.ForeignKey('Mention', related_name="mentions", null=True, help_text="A link to the canonical mention id")
+    parent_mention = models.ForeignKey('Mention', related_name="children", null=True, help_text="Identifies if this mention is contained in another one.")
+
     def __str__(self):
         return self.gloss
 
@@ -168,6 +171,14 @@ class Mention(models.Model):
             alt_entity_score = 0.,
             gloss = m.gloss,
             canonical_gloss = m.canonical_entity.gloss)
+
+    @property
+    def character_span(self):
+        return (self.doc_char_begin, self.doc_char_end)
+
+    @property
+    def canonical_character_span(self):
+        return (self.doc_canonical_char_begin, self.doc_canonical_char_end)
 
 class Relation(models.Model):
     """
