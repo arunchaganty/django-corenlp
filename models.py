@@ -97,7 +97,7 @@ class Entity(models.Model):
     ner = models.CharField(max_length=64, help_text="Type of entity, usually an NER tag")
 
     def __str__(self):
-        return "{}".format(str(self.id).replace("_"," "))
+        return "{}".format(str(self.id).replace("_"," ").replace("<", " ").replace(">", " "))
 
     def __repr__(self):
         return "[Entity {}]".format(self.id)
