@@ -40,7 +40,7 @@ class Sentence(models.Model):
     id = models.AutoField(primary_key=True)
     created = models.DateTimeField(default=now,  help_text="Keeps track of when this sentence was added")
 
-    doc = models.ForeignKey(Document, help_text="Source document")
+    doc = models.ForeignKey(Document, on_delete=models.CASCADE, help_text="Source document")
     sentence_index = models.IntegerField(help_text="Index of sentence in document (useful to order sentences)")
     words = ArrayField(models.TextField(), help_text="Array of tokens")   # Tokens
     lemmas = ArrayField(models.TextField(), help_text="Array of lemmas")  # Tokens
@@ -114,8 +114,8 @@ class Mention(models.Model):
     id = models.AutoField(primary_key=True)
     created = models.DateTimeField(default=now,  help_text="Keeps track of when this sentence was added")
 
-    doc = models.ForeignKey(Document, help_text="Source document")
-    sentence = models.ForeignKey(Sentence, help_text="Sentence containing the mention")
+    doc = models.ForeignKey(Document, on_delete=models.CASCADE, help_text="Source document")
+    sentence = models.ForeignKey(Sentence, on_delete=models.CASCADE, help_text="Sentence containing the mention")
 
     # provenance information
     token_begin = models.IntegerField(help_text="Token offset within sentence where this entity mention starts")
@@ -127,8 +127,9 @@ class Mention(models.Model):
     ner = models.CharField(max_length=64, help_text="Type of entity, usually an NER tag")
     gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
 
-    canonical_mention = models.ForeignKey('Mention', related_name="mentions", null=True, help_text="A link to the canonical mention id")
-    parent_mention = models.ForeignKey('Mention', related_name="children", null=True, help_text="Identifies if this mention is contained in another one.")
+    # Links
+    canonical_mention = models.ForeignKey('Mention', related_name="mentions", null=True, on_delete=models.CASCADE, help_text="A link to the canonical mention id")
+    parent_mention = models.ForeignKey('Mention', related_name="children", null=True, on_delete=models.CASCADE, help_text="Identifies if this mention is contained in another one.")
 
     def __str__(self):
         return self.gloss
@@ -187,15 +188,15 @@ class Relation(models.Model):
     id = models.AutoField(primary_key=True)
     created = models.DateTimeField(default=now, help_text="Keeps track of when this sentence was added")
     # Provenance
-    sentence = models.ForeignKey(Sentence, help_text="Sentence containing the mention")
+    sentence = models.ForeignKey(Sentence, on_delete=models.CASCADE, help_text="Sentence containing the mention")
 
     # Entity
-    entity = models.ForeignKey(Mention, null = True, related_name='entity_relations', help_text="Link to the the entity mention")
+    entity = models.ForeignKey(Mention, null = True, related_name='entity_relations', on_delete=models.CASCADE, help_text="Link to the the entity mention")
     # Replicated here for efficiency
     entity_name = models.TextField(help_text="The link of the entity")
     entity_gloss = models.TextField(help_text="The textual gloss of the entity")
     # Slot
-    slot_value = models.ForeignKey(Mention, null = True, related_name='slot_relations', help_text="Link to the the slot mention")
+    slot_value = models.ForeignKey(Mention, null = True, related_name='slot_relations', on_delete=models.CASCADE, help_text="Link to the the slot mention")
     # Replicated here for efficiency
     slot_value_name = models.TextField(help_text="The link of the slot value")
     slot_value_gloss = models.TextField(help_text="The textual gloss of the slot filler")
