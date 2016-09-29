@@ -122,19 +122,10 @@ class Mention(models.Model):
     token_end = models.IntegerField(help_text="Token offset within sentence where this entity mention ends")
     doc_char_begin = models.IntegerField(help_text="Character offset within the document where this entity mention starts")
     doc_char_end = models.IntegerField(help_text="Character offset within the document where this entity mention ends")
-    doc_canonical_char_begin = models.IntegerField(help_text="Character offset within the document where this entity's canonical mention (resolved through coref) starts")
-    doc_canonical_char_end = models.IntegerField(help_text="Character offset within the document where this entity's canonical mention (resolved through coref) ends")
 
-    # linking information
+    # Actual text
     ner = models.CharField(max_length=64, help_text="Type of entity, usually an NER tag")
-    best_entity = models.ForeignKey(Entity, null=True, related_name="mentions", db_column="best_entity", help_text="The best entity link for this mention")
-    best_entity_score = models.FloatField(null=True, help_text="Linking score for the best entity match")
-    unambiguous_link = models.BooleanField(help_text="Was the linking unambigiuous?")
-    alt_entity = models.ForeignKey(Entity, null=True, related_name="mentions_alt", db_column="alt_entity", help_text="The 2nd best entity link for this mention")
-    alt_entity_score = models.FloatField(null=True, help_text="Linking score for the 2nd best entity match")
-
     gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
-    canonical_gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
 
     canonical_mention = models.ForeignKey('Mention', related_name="mentions", null=True, help_text="A link to the canonical mention id")
     parent_mention = models.ForeignKey('Mention', related_name="children", null=True, help_text="Identifies if this mention is contained in another one.")
@@ -146,7 +137,7 @@ class Mention(models.Model):
         return "[Mention {}]".format(self.gloss[:50])
 
     @classmethod
-    def from_stanza(cls, doc, sentence, m):
+    def from_stanza(cls, doc, sentence, m, canonical_mention = None, parent_mention = None):
         """
         Convert a sentence from stanza.nlp.corenlp.AnnotatedEntity
         to this model.
@@ -161,24 +152,24 @@ class Mention(models.Model):
             token_end = m.token_span[1],
             doc_char_begin = m.character_span[0],
             doc_char_end = m.character_span[1],
-            doc_canonical_char_begin = m.canonical_entity.character_span[0],
-            doc_canonical_char_end = m.canonical_entity.character_span[1],
             ner = m.type,
-            best_entity = None,
-            best_entity_score = 0.,
-            unambiguous_link = False,
-            alt_entity = None,
-            alt_entity_score = 0.,
             gloss = m.gloss,
-            canonical_gloss = m.canonical_entity.gloss)
+            canonical_mention = canonical_mention,
+            parent_mention = parent_mention)
 
     @property
     def character_span(self):
         return (self.doc_char_begin, self.doc_char_end)
 
-    @property
-    def canonical_character_span(self):
-        return (self.doc_canonical_char_begin, self.doc_canonical_char_end)
+class Link(models.Model):
+    """
+    Entity link.
+    """
+    created = models.DateTimeField(default=now,  help_text="Keeps track of when this sentence was added")
+
+    mention = models.OneToOneField(Mention, on_delete=models.CASCADE, help_text="Mention participating in link")
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE, help_text="Entity participating in link")
+    score = models.FloatField(null=True, help_text="Linking score for the best entity match")
 
 class Relation(models.Model):
     """

@@ -39,17 +39,19 @@ def annotate_document(doc,
         # Note: setting ids is only supported with django 1.10 and with
         # postgres
         assert sentences[0].id is not None, "Ids have not been created. Are you using Django 1.10 with postgres?"
-        mentions = [Mention.from_stanza(doc, sentences[m.sentence.sentenceIndex], m) for m in mentions]
-        Mention.objects.bulk_create(mentions)
 
-        # Set the sub mention and canonical mention ids
-        mention_id_map = {(m.doc_char_begin, m.doc_char_end) : m.id for m in mentions}
-        for mention in mentions:
-            mention.canonical_mention_id = mention_id_map[(mention.doc_canonical_char_begin, mention.doc_canonical_char_end)]
-            for _, parent_mention in ((span, id) for span, id in mention_id_map.items() if not span == mention.character_span and span_contains(span, mention.character_span)):
-                mention.parent_mention_id = parent_mention
+        # First, insert all mentions to get ids.
+        mentions = {m: Mention.from_stanza(doc, sentences[m.sentence.sentenceIndex], m) for m in mentions}
+        Mention.objects.bulk_create(mentions.values())
+
+        # Set the canonical mention and parent mention ids
+        for mention, db_mention in mentions.items():
+            db_mention.canonical_mention = mentions[mention.canonical_entity]
+
+            for parent_mention in (db_mention_ for _, db_mention_ in mentions.items() if not db_mention_.character_span == db_mention.character_span and span_contains(db_mention_.character_span, db_mention.character_span)):
+                mention.parent_mention = parent_mention
                 break
-            mention.save()
+            db_mention.save()
 
     return sentences, mentions
 
