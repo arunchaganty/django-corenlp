@@ -126,6 +126,10 @@ class Mention(models.Model):
     # Actual text
     ner = models.CharField(max_length=64, help_text="Type of entity, usually an NER tag")
     gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
+    canonical_gloss = models.TextField(null=True, help_text="Raw text representation of the mention")
+
+    canonical_mention = models.ForeignKey('Mention', related_name="mentions", null=True, help_text="A link to the canonical mention id")
+    parent_mention = models.ForeignKey('Mention', related_name="children", null=True, help_text="Identifies if this mention is contained in another one.")
 
     # Links
     canonical_mention = models.ForeignKey('Mention', related_name="mentions", null=True, on_delete=models.CASCADE, help_text="A link to the canonical mention id")
