@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.utils.timezone import now
+import json
 from . import settings
 
 # TODO(chaganty): include a from_to stanza/dict methods.
@@ -76,7 +77,7 @@ class Sentence(models.Model):
             ner_tags = s.ner_tags,
             doc_char_begin = [t.character_span[0] for t in s],
             doc_char_end = [t.character_span[1] for t in s],
-            dependencies = None, #TODO(chaganty): stanza's object doesn't have a representation.
+            dependencies = json.dumps(s.depparse().to_json()),
             gloss = s.text)
 
 
