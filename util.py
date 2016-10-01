@@ -3,7 +3,6 @@ Utilities to annotate documents with Stanza
 """
 
 from django.db import transaction
-from stanza.nlp.corenlp import CoreNLPClient, AnnotationException
 from .models import Sentence, Mention
 from . import settings
 
